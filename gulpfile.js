@@ -15,7 +15,11 @@ var embedlr = require('gulp-embedlr');
 var refresh = require('gulp-livereload');
 var express = require('express');
 var http    = require('http');
+var include = require("gulp-include");
+var imagemin   	= require('gulp-imagemin');
 var lr      = require('tiny-lr')();
+var nodemon = require('gulp-nodemon');
+
 
 gulp.task('clean', function () {
     // Clear the destination folder
@@ -64,6 +68,21 @@ gulp.task('styles', function () {
         .pipe(refresh(lr));
 });
 
+gulp.task('html', function () {
+    return gulp.src('src/html/*.html')
+        .pipe(include())
+        .on('error', console.log)
+        .pipe(gulp.dest('dist/'))
+        .pipe(refresh(lr));
+});
+
+gulp.task('img', function() {
+    return gulp.src('src/img/*')
+        .pipe(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }))
+        .pipe(gulp.dest('dist/img'))
+        .pipe(refresh(lr));
+});
+
 gulp.task('server', function () {
     // Create a HTTP server for static files
     var port = 3000;
@@ -88,6 +107,19 @@ gulp.task('server', function () {
     server.listen(port);
 });
 
+gulp.task('nodemon', function (cb) {
+    var callbackCalled = false;
+    return nodemon({script: 'server.js'}).on('start', function () {
+        if (!callbackCalled) {
+            callbackCalled = true;
+            cb();
+        }
+    });
+});
+
+
+
+
 gulp.task('lr-server', function () {
     // Create a LiveReload server
     lr.listen(35729, function (err) {
@@ -103,12 +135,8 @@ gulp.task('watch', function () {
 
     // Watch .less files and run tasks if they change
     gulp.watch('src/less/**/*.less', ['styles']);
-
-    gulp.watch('src/**/*.html',
-      gulp.src(['src/*.html','src/modules/*.html'])
-          .pipe(embedlr())
-          .pipe(gulp.dest('./dist'))
-    );
+    gulp.watch('src/img/**/*.{jpg,png,gif}', ['img']);
+    gulp.watch('src/html/**/*.html', ['html']);
 
 });
 
@@ -116,4 +144,4 @@ gulp.task('watch', function () {
 gulp.task('dist', ['clean', 'copy', 'scripts', 'styles']);
 
 // The default task (called when you run `gulp`)
-gulp.task('default', ['clean', 'copy', 'scripts', 'styles', 'lr-server', 'server', 'watch']);
+gulp.task('default', ['clean', 'copy', 'scripts', 'styles', "html", 'nodemon', 'watch']);
