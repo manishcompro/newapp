@@ -85,7 +85,7 @@ gulp.task('img', function() {
 
 gulp.task('server', function () {
     // Create a HTTP server for static files
-    var port = 3000;
+    var port = 8080;
     var app = express();
     var server = http.createServer(app);
 
@@ -112,7 +112,7 @@ gulp.task('nodemon', function (cb) {
     return nodemon({script: 'server.js'}).on('start', function () {
         if (!callbackCalled) {
             callbackCalled = true;
-            cb();
+
         }
     });
 });
