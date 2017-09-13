@@ -1,6 +1,9 @@
 {
   "name": "web-app-html",
   "description": "A front-end web application template based on the HTML5 Boilerplate.",
+  "scripts": {
+    "start": "gulp default"
+  },
   "repository": "",
   "devDependencies": {
     "bootstrap": "^3.3.6",
